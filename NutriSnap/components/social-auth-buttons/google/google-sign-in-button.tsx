@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { useEffect } from 'react';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, Platform } from 'react-native';
 
 import { expo } from '@/app.json';
 import { Text } from '@react-navigation/elements';
@@ -77,12 +77,16 @@ export default function GoogleSignInButton() {
     }
   }
 
-  // to warm up the browser
+  // to warm up the browser (only on mobile platforms)
   useEffect(() => {
-    WebBrowser.warmUpAsync();
+    if (Platform.OS !== 'web') {
+      WebBrowser.warmUpAsync();
+    }
 
     return () => {
-      WebBrowser.coolDownAsync();
+      if (Platform.OS !== 'web') {
+        WebBrowser.coolDownAsync();
+      }
     };
   }, []);
 
