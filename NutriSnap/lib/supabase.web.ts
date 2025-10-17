@@ -32,7 +32,8 @@ export const supabase = createClient(
       storage: ExpoWebSecureStoreAdapter,
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: false,
+      detectSessionInUrl: true, // IMPORTANT: Must be true for OAuth callbacks on web
+      flowType: 'pkce', // Use PKCE flow for better security
     },
   },
 );

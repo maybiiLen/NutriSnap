@@ -46,6 +46,7 @@ export const supabase = createClient(
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: Platform.OS === 'web',
+      flowType: 'pkce', // Use PKCE flow for better security
     },
   },
 );
