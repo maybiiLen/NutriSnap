@@ -59,7 +59,7 @@ export default function LoginScreen() {
               </View>
 
               {/* Additional options */}
-              <Link href="/" style={styles.link}>
+              <Link href="/onboarding" style={styles.link}>
                 <Text style={styles.linkText}>Continue as Guest →</Text>
               </Link>
             </View>

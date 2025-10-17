@@ -40,7 +40,8 @@ function RootNavigator() {
     // Use setTimeout to avoid navigation conflicts during OAuth callback
     const navigationTimeout = setTimeout(() => {
       if (!isLoggedIn) {
-        if (!inAuthGroup) {
+        // Allow guests to access onboarding and tabs (after completing onboarding)
+        if (!inAuthGroup && !inOnboardingGroup && !inTabsGroup) {
           console.log('➡️ Redirecting to login (not logged in)')
           router.replace('/login')
         }

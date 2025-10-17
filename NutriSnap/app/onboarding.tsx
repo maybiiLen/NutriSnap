@@ -136,9 +136,8 @@ export default function OnboardingScreen() {
     try {
       // Get user data
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No user found');
-
-      // Convert to metric for storage
+      
+      // Convert to metric for storage/calculation
       const heightCm = unit === 'metric' 
         ? parseFloat(formData.height)
         : feetToCm(parseInt(formData.heightFeet), parseInt(formData.heightInches));
@@ -160,25 +159,31 @@ export default function OnboardingScreen() {
       const dailyCalories = adjustForGoal(tdee, formData.goal!);
       const macros = calculateMacros(dailyCalories);
 
-      // Save to database
-      const { error } = await supabase.from('users').insert({
-        id: user.id,
-        email: user.email,
-        age: parseInt(formData.age),
-        height: heightCm,
-        weight: weightKg,
-        sex: formData.sex,
-        activity_level: formData.activityLevel,
-        goal: formData.goal,
-        target_weight: targetWeightKg,
-        daily_calorie_target: dailyCalories,
-        daily_protein_target: macros.protein,
-        daily_carbs_target: macros.carbs,
-        daily_fat_target: macros.fat,
-        onboarding_completed: true,
-      });
+      // If user is authenticated, save to database
+      if (user) {
+        const { error } = await supabase.from('users').insert({
+          id: user.id,
+          email: user.email,
+          age: parseInt(formData.age),
+          height: heightCm,
+          weight: weightKg,
+          sex: formData.sex,
+          activity_level: formData.activityLevel,
+          goal: formData.goal,
+          target_weight: targetWeightKg,
+          daily_calorie_target: dailyCalories,
+          daily_protein_target: macros.protein,
+          daily_carbs_target: macros.carbs,
+          daily_fat_target: macros.fat,
+          onboarding_completed: true,
+        });
 
-      if (error) throw error;
+        if (error) throw error;
+      } else {
+        // For guest users, store data in local storage or just proceed
+        console.log('Guest user - onboarding data not saved to database');
+        // TODO: Store in AsyncStorage if needed for guest users
+      }
 
       // Navigate to main app
       router.replace('/(tabs)');
@@ -265,7 +270,7 @@ export default function OnboardingScreen() {
         {unit === 'metric' ? (
           <TextInput
             style={styles.input}
-            placeholder="170"
+            placeholder=""
             keyboardType="decimal-pad"
             value={formData.height}
             onChangeText={(text) => setFormData({ ...formData, height: text })}
@@ -295,7 +300,7 @@ export default function OnboardingScreen() {
         <Text style={styles.label}>Weight {unit === 'metric' ? '(kg)' : '(lbs)'}</Text>
         <TextInput
           style={styles.input}
-          placeholder={unit === 'metric' ? '70' : '154'}
+          placeholder=""
           keyboardType="decimal-pad"
           value={formData.weight}
           onChangeText={(text) => setFormData({ ...formData, weight: text })}
@@ -406,7 +411,7 @@ export default function OnboardingScreen() {
           <Text style={styles.label}>Target Weight {unit === 'metric' ? '(kg)' : '(lbs)'}</Text>
           <TextInput
             style={styles.input}
-            placeholder={unit === 'metric' ? '65' : '143'}
+            placeholder=""
             keyboardType="decimal-pad"
             value={formData.targetWeight}
             onChangeText={(text) => setFormData({ ...formData, targetWeight: text })}
